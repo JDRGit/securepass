@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# SecurePass: Secure Password Generator
+
+SecurePass is a simple and secure password generator built with Next.js. This application helps users create strong passwords by allowing them to specify the password length and include/exclude numbers and symbols.
+
+## Features
+
+- Generate secure passwords with customizable options.
+- Specify password length (between 6 and 32 characters).
+- Option to include/exclude numbers and symbols.
+- Minimalist and user-friendly design.
 
 ## Getting Started
 
-First, run the development server:
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Prerequisites
+
+You need to have Node.js and npm installed on your machine. You can download and install them from [here](https://nodejs.org/).
+
+### Installing
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/secure-pass.git
+   cd secure-pass
+   ```
+
+2. Install the dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+
+   ```bash
+   npm run dev
+   ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. Open the application in your browser.
+2. Adjust the password length using the number input.
+3. Check or uncheck the options to include numbers and symbols.
+4. Click the "Generate Password" button.
+5. Your secure password will be displayed on the screen.
 
-## Learn More
+## Built With
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [Next.js](https://nextjs.org/) - The React Framework for Production
+- [generate-password](https://www.npmjs.com/package/generate-password) - Password generator for Node.js
