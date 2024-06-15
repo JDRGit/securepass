@@ -1,13 +1,15 @@
 # SecurePass: Secure Password Generator
 
-SecurePass is a simple and secure password generator built with Next.js. This application helps users create strong passwords by allowing them to specify the password length and include/exclude numbers and symbols.
+SecurePass is a simple and secure password generator built with Next.js and TypeScript. This application helps users create strong passwords by allowing them to specify the password length and include/exclude numbers, symbols, uppercase letters, and lowercase letters.
 
 ## Features
 
 - Generate secure passwords with customizable options.
 - Specify password length (between 6 and 32 characters).
-- Option to include/exclude numbers and symbols.
+- Option to include/exclude numbers, symbols, uppercase letters, and lowercase letters.
 - Minimalist and user-friendly design.
+- Responsive layout that works well on all devices.
+- Copy generated password to clipboard functionality.
 
 ## Getting Started
 
@@ -40,15 +42,7 @@ You need to have Node.js and npm installed on your machine. You can download and
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Usage
-
-1. Open the application in your browser.
-2. Adjust the password length using the number input.
-3. Check or uncheck the options to include numbers and symbols.
-4. Click the "Generate Password" button.
-5. Your secure password will be displayed on the screen.
-
 ## Built With
 
 - [Next.js](https://nextjs.org/) - The React Framework for Production
-- [generate-password](https://www.npmjs.com/package/generate-password) - Password generator for Node.js
+- [TypeScript](https://www.typescriptlang.org/) - JavaScript with syntax for types.
