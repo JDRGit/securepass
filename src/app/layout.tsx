@@ -1,14 +1,14 @@
+import { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
-  title: "SecurePass: Secure Password Generator",
-  description: "SecurePass is a simple and secure password generator built with Next.js. This application helps users create strong passwords by allowing them to specify the password length and include/exclude numbers and symbols",
-};
+interface RootLayoutProps {
+  children: ReactNode;
+}
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>
