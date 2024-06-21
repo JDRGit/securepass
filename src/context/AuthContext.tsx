@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from '../app/firebase';
 
@@ -10,13 +10,17 @@ interface AuthContextProps {
   logout: () => void;
 }
 
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
 const AuthContext = createContext<AuthContextProps>({
   user: null,
   loading: true,
   logout: () => {},
 });
 
-export const AuthProvider: React.FC = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
