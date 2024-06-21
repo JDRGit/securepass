@@ -1,17 +1,18 @@
-import { ReactNode } from "react";
-import { Inter } from "next/font/google";
-import "./globals.css";
+"use client";
 
-const inter = Inter({ subsets: ["latin"] });
+import { AuthProvider } from '../context/AuthContext';
+import '../app/globals.css';
 
-interface RootLayoutProps {
-  children: ReactNode;
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <AuthProvider>
+      <html lang="en">
+        <body>
+          {children}
+        </body>
+      </html>
+    </AuthProvider>
   );
-}
+};
+
+export default RootLayout;
