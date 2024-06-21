@@ -3,8 +3,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { db } from '../app/firebase';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../app/firebase';
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
 import { useAuth } from '../context/AuthContext';
 
