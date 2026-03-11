@@ -1,8 +1,6 @@
-"use client";
-
 import { ReactNode } from 'react';
 import { AuthProvider } from '../context/AuthContext';
-import '../app/globals.css';
+import './globals.css';
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -10,13 +8,13 @@ interface RootLayoutProps {
 
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <AuthProvider>
-      <html lang="en">
-        <body>
+    <html lang="en">
+      <body>
+        <AuthProvider>
           {children}
-        </body>
-      </html>
-    </AuthProvider>
+        </AuthProvider>
+      </body>
+    </html>
   );
 };
 

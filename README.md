@@ -1,48 +1,40 @@
-# SecurePass: Secure Password Generator
+# SecurePass
 
-SecurePass is a simple and secure password generator built with Next.js and TypeScript. This application helps users create strong passwords by allowing them to specify the password length and include/exclude numbers, symbols, uppercase letters, and lowercase letters.
+SecurePass is a Next.js + TypeScript password generator with a local encrypted vault.
+
+## Security Model
+
+- Password generation uses `crypto.getRandomValues` (not `Math.random`).
+- Saved passwords are encrypted in-browser using Web Crypto (`PBKDF2` + `AES-GCM`).
+- Vault data is stored only in local browser storage per user session identity.
+- No Firestore dependency for password storage.
 
 ## Features
 
-- Generate secure passwords with customizable options.
-- Specify password length (between 6 and 32 characters).
-- Option to include/exclude numbers, symbols, uppercase letters, and lowercase letters.
-- Minimalist and user-friendly design.
-- Responsive layout that works well on all devices.
-- Copy generated password to clipboard functionality.
+- Configurable password generation.
+- Password strength indicator.
+- Copy to clipboard.
+- Local encrypted vault with lock/unlock flow.
+- Encrypted vault export/import for device migration and backup.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
-You need to have Node.js and npm installed on your machine. You can download and install them from [here](https://nodejs.org/).
-
-### Installing
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/yourusername/secure-pass.git
-   cd secure-pass
-   ```
-
-2. Install the dependencies:
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-3. Run the development server:
+2. Start dev server:
 
    ```bash
    npm run dev
    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Open `http://localhost:3000`.
 
-## Built With
+## Notes
 
-- [Next.js](https://nextjs.org/) - The React Framework for Production
-- [TypeScript](https://www.typescriptlang.org/) - JavaScript with syntax for types.
+- Vault contents are device/browser-local and do not sync across devices.
+- If you forget the vault passphrase, existing saved entries cannot be decrypted.
+- Importing a backup replaces existing local vault data for that signed-in account in that browser.

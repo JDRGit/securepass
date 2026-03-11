@@ -14,12 +14,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login');
+      router.replace('/login');
     }
   }, [user, loading, router]);
 
   if (loading) {
     return <div>Loading...</div>; // or a loading spinner
+  }
+
+  if (!user) {
+    return null;
   }
 
   return <>{children}</>;

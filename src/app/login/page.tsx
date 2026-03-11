@@ -5,7 +5,6 @@ import { auth } from '../../app/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import GoogleButton from 'react-google-button';
 import { useRouter } from 'next/navigation';
-import '../globals.css';
 
 const Login: React.FC = () => {
   const router = useRouter();
@@ -14,7 +13,7 @@ const Login: React.FC = () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      router.push('/');
+      router.replace('/');
     } catch (error) {
       console.error(error);
     }
