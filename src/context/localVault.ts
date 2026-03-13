@@ -21,6 +21,7 @@ interface VaultBackup {
 }
 
 const STORAGE_PREFIX = 'securepass:vault:';
+export const DEFAULT_VAULT_ID = 'default';
 const KEY_DERIVATION_ITERATIONS = 310000;
 const KEY_LENGTH = 256;
 const SALT_BYTES = 16;
@@ -29,7 +30,7 @@ const IV_BYTES = 12;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-const storageKeyForUid = (uid: string): string => `${STORAGE_PREFIX}${uid}`;
+const storageKeyForVault = (vaultId: string): string => `${STORAGE_PREFIX}${vaultId}`;
 
 const randomBytes = (size: number): Uint8Array => {
   const bytes = new Uint8Array(size);
@@ -100,17 +101,17 @@ const parseVaultRecord = (raw: string | null): VaultRecord | null => {
   }
 };
 
-const writeVaultRecord = (uid: string, record: VaultRecord): void => {
-  localStorage.setItem(storageKeyForUid(uid), JSON.stringify(record));
+const writeVaultRecord = (vaultId: string, record: VaultRecord): void => {
+  localStorage.setItem(storageKeyForVault(vaultId), JSON.stringify(record));
 };
 
-export const loadVaultEntries = (uid: string): VaultEntry[] => {
-  const record = parseVaultRecord(localStorage.getItem(storageKeyForUid(uid)));
+export const loadVaultEntries = (vaultId: string): VaultEntry[] => {
+  const record = parseVaultRecord(localStorage.getItem(storageKeyForVault(vaultId)));
   return record ? [...record.entries].sort((a, b) => b.createdAt - a.createdAt) : [];
 };
 
-export const getOrCreateVaultSalt = (uid: string): string => {
-  const current = parseVaultRecord(localStorage.getItem(storageKeyForUid(uid)));
+export const getOrCreateVaultSalt = (vaultId: string): string => {
+  const current = parseVaultRecord(localStorage.getItem(storageKeyForVault(vaultId)));
 
   if (current) {
     return current.salt;
@@ -123,7 +124,7 @@ export const getOrCreateVaultSalt = (uid: string): string => {
     entries: [],
   };
 
-  writeVaultRecord(uid, initial);
+  writeVaultRecord(vaultId, initial);
   return salt;
 };
 
@@ -153,8 +154,8 @@ export const deriveVaultKey = async (passphrase: string, saltBase64: string): Pr
   );
 };
 
-const readVaultRecord = (uid: string): VaultRecord => {
-  const raw = localStorage.getItem(storageKeyForUid(uid));
+const readVaultRecord = (vaultId: string): VaultRecord => {
+  const raw = localStorage.getItem(storageKeyForVault(vaultId));
   const record = parseVaultRecord(raw);
 
   if (record) {
@@ -167,7 +168,7 @@ const readVaultRecord = (uid: string): VaultRecord => {
     entries: [],
   };
 
-  writeVaultRecord(uid, fresh);
+  writeVaultRecord(vaultId, fresh);
   return fresh;
 };
 
@@ -202,12 +203,12 @@ export const decryptEntryPassword = async (key: CryptoKey, entry: VaultEntry): P
 };
 
 export const addVaultEntry = async (
-  uid: string,
+  vaultId: string,
   key: CryptoKey,
   nickname: string,
   plaintextPassword: string
 ): Promise<VaultEntry[]> => {
-  const record = readVaultRecord(uid);
+  const record = readVaultRecord(vaultId);
   const encrypted = await encryptText(key, plaintextPassword);
 
   const nextEntry: VaultEntry = {
@@ -223,15 +224,15 @@ export const addVaultEntry = async (
     entries: [nextEntry, ...record.entries],
   };
 
-  writeVaultRecord(uid, nextRecord);
+  writeVaultRecord(vaultId, nextRecord);
   return [...nextRecord.entries];
 };
 
-export const removeVaultEntry = (uid: string, entryId: string): VaultEntry[] => {
-  const record = readVaultRecord(uid);
+export const removeVaultEntry = (vaultId: string, entryId: string): VaultEntry[] => {
+  const record = readVaultRecord(vaultId);
   const nextEntries = record.entries.filter((entry) => entry.id !== entryId);
 
-  writeVaultRecord(uid, {
+  writeVaultRecord(vaultId, {
     ...record,
     entries: nextEntries,
   });
@@ -239,8 +240,8 @@ export const removeVaultEntry = (uid: string, entryId: string): VaultEntry[] => 
   return [...nextEntries];
 };
 
-export const exportVaultBackup = (uid: string): string => {
-  const record = readVaultRecord(uid);
+export const exportVaultBackup = (vaultId: string): string => {
+  const record = readVaultRecord(vaultId);
   const backup: VaultBackup = {
     app: 'SecurePass',
     version: 1,
@@ -252,7 +253,7 @@ export const exportVaultBackup = (uid: string): string => {
   return JSON.stringify(backup, null, 2);
 };
 
-export const importVaultBackup = (uid: string, backupJson: string): VaultEntry[] => {
+export const importVaultBackup = (vaultId: string, backupJson: string): VaultEntry[] => {
   const record = parseVaultRecord(backupJson);
 
   if (!record) {
@@ -265,6 +266,6 @@ export const importVaultBackup = (uid: string, backupJson: string): VaultEntry[]
     entries: [...record.entries].sort((a, b) => b.createdAt - a.createdAt),
   };
 
-  writeVaultRecord(uid, nextRecord);
+  writeVaultRecord(vaultId, nextRecord);
   return [...nextRecord.entries];
 };

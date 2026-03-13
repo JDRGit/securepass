@@ -1,10 +1,10 @@
 "use client";
 
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
-import { useAuth } from '../context/AuthContext';
 import {
-  VaultEntry,
+  DEFAULT_VAULT_ID,
+  type VaultEntry,
   addVaultEntry,
   decryptEntryPassword,
   deriveVaultKey,
@@ -61,39 +61,31 @@ const timestampFormatter = new Intl.DateTimeFormat('en-US', {
   timeStyle: 'short',
 });
 
-const PasswordGenerator: React.FC = () => {
-  const [password, setPassword] = useState<string>('');
-  const [length, setLength] = useState<number>(16);
-  const [includeNumbers, setIncludeNumbers] = useState<boolean>(true);
-  const [includeSymbols, setIncludeSymbols] = useState<boolean>(true);
-  const [includeUppercase, setIncludeUppercase] = useState<boolean>(true);
-  const [includeLowercase, setIncludeLowercase] = useState<boolean>(true);
-  const [nickname, setNickname] = useState<string>('');
-  const [vaultPassphrase, setVaultPassphrase] = useState<string>('');
+const PasswordGenerator = () => {
+  const [password, setPassword] = useState('');
+  const [length, setLength] = useState(16);
+  const [includeNumbers, setIncludeNumbers] = useState(true);
+  const [includeSymbols, setIncludeSymbols] = useState(true);
+  const [includeUppercase, setIncludeUppercase] = useState(true);
+  const [includeLowercase, setIncludeLowercase] = useState(true);
+  const [nickname, setNickname] = useState('');
+  const [vaultPassphrase, setVaultPassphrase] = useState('');
   const [vaultKey, setVaultKey] = useState<CryptoKey | null>(null);
-  const [unlockingVault, setUnlockingVault] = useState<boolean>(false);
-  const [importingVault, setImportingVault] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [statusMessage, setStatusMessage] = useState<string>('');
+  const [unlockingVault, setUnlockingVault] = useState(false);
+  const [importingVault, setImportingVault] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
   const [savedPasswords, setSavedPasswords] = useState<VaultEntry[]>([]);
-  const { user, logout } = useAuth();
   const importFileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const hasVaultAccess = useMemo(() => !!user && !!vaultKey, [user, vaultKey]);
+  const hasVaultAccess = vaultKey !== null;
 
   useEffect(() => {
     setVaultKey(null);
     setSavedPasswords([]);
     setVaultPassphrase('');
     setCopied(false);
-
-    if (user) {
-      setStatusMessage('Unlock your local vault to save and retrieve passwords.');
-      return;
-    }
-
-    setStatusMessage('');
-  }, [user]);
+    setStatusMessage('No account needed. Unlock your local vault to save passwords on this device.');
+  }, []);
 
   const generatePassword = () => {
     const enabledSets: string[] = [];
@@ -139,11 +131,6 @@ const PasswordGenerator: React.FC = () => {
   };
 
   const unlockVault = async () => {
-    if (!user) {
-      setStatusMessage('Sign in before unlocking your vault.');
-      return;
-    }
-
     if (!crypto?.subtle) {
       setStatusMessage('This browser does not support Web Crypto required for encrypted storage.');
       return;
@@ -157,9 +144,9 @@ const PasswordGenerator: React.FC = () => {
     setUnlockingVault(true);
 
     try {
-      const salt = getOrCreateVaultSalt(user.uid);
+      const salt = getOrCreateVaultSalt(DEFAULT_VAULT_ID);
       const key = await deriveVaultKey(vaultPassphrase, salt);
-      const entries = loadVaultEntries(user.uid);
+      const entries = loadVaultEntries(DEFAULT_VAULT_ID);
 
       if (entries.length > 0) {
         await decryptEntryPassword(key, entries[0]);
@@ -185,7 +172,7 @@ const PasswordGenerator: React.FC = () => {
   };
 
   const handleSavePassword = async () => {
-    if (!user || !vaultKey) {
+    if (!vaultKey) {
       setStatusMessage('Unlock your vault before saving passwords.');
       return;
     }
@@ -196,7 +183,7 @@ const PasswordGenerator: React.FC = () => {
     }
 
     try {
-      const updatedEntries = await addVaultEntry(user.uid, vaultKey, nickname, password);
+      const updatedEntries = await addVaultEntry(DEFAULT_VAULT_ID, vaultKey, nickname, password);
       setSavedPasswords(updatedEntries);
       setNickname('');
       setPassword('');
@@ -208,24 +195,19 @@ const PasswordGenerator: React.FC = () => {
   };
 
   const handleDeletePassword = (id: string) => {
-    if (!user || !vaultKey) {
+    if (!vaultKey) {
       setStatusMessage('Unlock your vault before deleting passwords.');
       return;
     }
 
-    const updatedEntries = removeVaultEntry(user.uid, id);
+    const updatedEntries = removeVaultEntry(DEFAULT_VAULT_ID, id);
     setSavedPasswords(updatedEntries);
     setStatusMessage('Saved password deleted.');
   };
 
   const downloadVaultBackup = () => {
-    if (!user) {
-      setStatusMessage('Sign in before exporting a vault backup.');
-      return;
-    }
-
     try {
-      const backupJson = exportVaultBackup(user.uid);
+      const backupJson = exportVaultBackup(DEFAULT_VAULT_ID);
       const blob = new Blob([backupJson], { type: 'application/json' });
       const downloadUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -245,11 +227,6 @@ const PasswordGenerator: React.FC = () => {
   };
 
   const handleImportFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!user) {
-      setStatusMessage('Sign in before importing a vault backup.');
-      return;
-    }
-
     const selectedFile = e.target.files?.[0];
 
     if (!selectedFile) {
@@ -263,7 +240,7 @@ const PasswordGenerator: React.FC = () => {
     }
 
     const shouldReplace = window.confirm(
-      'Importing a backup replaces your local vault data for this account in this browser. Continue?'
+      'Importing a backup replaces the current local vault in this browser. Continue?'
     );
 
     if (!shouldReplace) {
@@ -276,7 +253,7 @@ const PasswordGenerator: React.FC = () => {
 
     try {
       const backupJson = await selectedFile.text();
-      const importedEntries = importVaultBackup(user.uid, backupJson);
+      const importedEntries = importVaultBackup(DEFAULT_VAULT_ID, backupJson);
 
       setVaultKey(null);
       setSavedPasswords([]);
@@ -331,97 +308,137 @@ const PasswordGenerator: React.FC = () => {
   return (
     <div className="container">
       <main className="main">
-        <h1>Secure Password Generator</h1>
-        <button onClick={logout}>Log Out</button>
+        <section className="hero">
+          <span className="eyebrow">Portfolio MVP</span>
+          <h1>SecurePass</h1>
+          <p className="hero-copy">
+            Generate strong passwords instantly, lock them inside an encrypted local vault, and move that vault between devices with an export file.
+          </p>
+          <div className="hero-badges">
+            <span>No login</span>
+            <span>Local-only vault</span>
+            <span>Netlify-ready</span>
+          </div>
+        </section>
 
-        {user && (
-          <section>
-            <h2>Local Encrypted Vault</h2>
-            <p>Passwords are encrypted and stored only in this browser.</p>
-            <label>
-              Vault Passphrase:
-              <input
-                type="password"
-                value={vaultPassphrase}
-                onChange={(e) => setVaultPassphrase(e.target.value)}
-                disabled={hasVaultAccess}
-                autoComplete="off"
-              />
-            </label>
+        <section className="panel">
+          <div className="section-heading">
+            <h2>Vault</h2>
+            <p>Encrypted with your passphrase and stored only in this browser.</p>
+          </div>
+          <label className="field">
+            <span>Vault Passphrase</span>
+            <input
+              type="password"
+              value={vaultPassphrase}
+              onChange={(e) => setVaultPassphrase(e.target.value)}
+              disabled={hasVaultAccess}
+              autoComplete="off"
+              placeholder="Use 12 or more characters"
+            />
+          </label>
+          <div className="button-row">
             <button onClick={unlockVault} disabled={unlockingVault || hasVaultAccess}>
               {unlockingVault ? 'Unlocking...' : 'Unlock Vault'}
             </button>
-            <button onClick={lockVault} disabled={!hasVaultAccess}>
+            <button onClick={lockVault} disabled={!hasVaultAccess} className="button-secondary">
               Lock Vault
             </button>
-            <button onClick={downloadVaultBackup} disabled={!user}>
-              Export Vault Backup
+            <button onClick={downloadVaultBackup} className="button-secondary">
+              Export Backup
             </button>
-            <button onClick={openImportPicker} disabled={!user || importingVault}>
-              {importingVault ? 'Importing...' : 'Import Vault Backup'}
+            <button onClick={openImportPicker} disabled={importingVault} className="button-secondary">
+              {importingVault ? 'Importing...' : 'Import Backup'}
             </button>
-            <input
-              ref={importFileInputRef}
-              type="file"
-              accept="application/json"
-              style={{ display: 'none' }}
-              onChange={handleImportFileChange}
-            />
-          </section>
-        )}
+          </div>
+          <input
+            ref={importFileInputRef}
+            type="file"
+            accept="application/json"
+            style={{ display: 'none' }}
+            onChange={handleImportFileChange}
+          />
+        </section>
 
-        <section>
-          <label>
-            Password Length:
+        <section className="panel">
+          <div className="section-heading">
+            <h2>Generator</h2>
+            <p>Tune the recipe, generate once, then save only if you want to keep it.</p>
+          </div>
+          <label className="field">
+            <span>Password Length</span>
             <input type="number" value={length} onChange={handleLengthChange} min={MIN_PASSWORD_LENGTH} max={MAX_PASSWORD_LENGTH} />
           </label>
-          <label>
-            Include Numbers:
-            <input type="checkbox" checked={includeNumbers} onChange={(e) => setIncludeNumbers(e.target.checked)} />
+          <div className="toggle-grid">
+            <label className="toggle">
+              <span>Numbers</span>
+              <input type="checkbox" checked={includeNumbers} onChange={(e) => setIncludeNumbers(e.target.checked)} />
+            </label>
+            <label className="toggle">
+              <span>Symbols</span>
+              <input type="checkbox" checked={includeSymbols} onChange={(e) => setIncludeSymbols(e.target.checked)} />
+            </label>
+            <label className="toggle">
+              <span>Uppercase</span>
+              <input type="checkbox" checked={includeUppercase} onChange={(e) => setIncludeUppercase(e.target.checked)} />
+            </label>
+            <label className="toggle">
+              <span>Lowercase</span>
+              <input type="checkbox" checked={includeLowercase} onChange={(e) => setIncludeLowercase(e.target.checked)} />
+            </label>
+          </div>
+          <label className="field">
+            <span>Entry Label</span>
+            <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={80} placeholder="Example: Github admin" />
           </label>
-          <label>
-            Include Symbols:
-            <input type="checkbox" checked={includeSymbols} onChange={(e) => setIncludeSymbols(e.target.checked)} />
-          </label>
-          <label>
-            Include Uppercase:
-            <input type="checkbox" checked={includeUppercase} onChange={(e) => setIncludeUppercase(e.target.checked)} />
-          </label>
-          <label>
-            Include Lowercase:
-            <input type="checkbox" checked={includeLowercase} onChange={(e) => setIncludeLowercase(e.target.checked)} />
-          </label>
-          <label>
-            Nickname:
-            <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} maxLength={80} />
-          </label>
-          <button onClick={generatePassword}>Generate Password</button>
+          <div className="button-row">
+            <button onClick={generatePassword}>Generate Password</button>
+            {password && hasVaultAccess && (
+              <button onClick={handleSavePassword} className="button-secondary">
+                Save to Vault
+              </button>
+            )}
+          </div>
         </section>
 
         {password && (
-          <section>
-            <h2>Your Secure Password</h2>
-            <p>{password}</p>
-            <button onClick={() => copyToClipboard(password, 'Generated password')}>Copy to Clipboard</button>
-            {hasVaultAccess && <button onClick={handleSavePassword}>Save to Vault</button>}
-            {copied && <span style={{ color: 'green' }}>Copied</span>}
+          <section className="panel">
+            <div className="section-heading">
+              <h2>Current Password</h2>
+              <p>Generated locally with browser crypto.</p>
+            </div>
+            <p className="password-output">{password}</p>
+            <div className="button-row">
+              <button onClick={() => copyToClipboard(password, 'Generated password')}>Copy to Clipboard</button>
+              {hasVaultAccess && (
+                <button onClick={handleSavePassword} className="button-secondary">
+                  Save to Vault
+                </button>
+              )}
+            </div>
+            {copied && <span className="status-inline">Copied</span>}
             <PasswordStrengthMeter password={password} />
           </section>
         )}
 
         {hasVaultAccess && savedPasswords.length > 0 && (
-          <section>
-            <h2>Saved Passwords</h2>
-            <ul>
+          <section className="panel">
+            <div className="section-heading">
+              <h2>Saved Passwords</h2>
+              <p>Entries stay hidden until you unlock the vault.</p>
+            </div>
+            <ul className="saved-list">
               {savedPasswords.map((entry) => (
                 <li key={entry.id}>
                   <div>
                     <strong>{entry.nickname || 'No Nickname'}</strong>
                     <p>{timestampFormatter.format(new Date(entry.createdAt))}</p>
                   </div>
-                  <div>
+                  <div className="list-actions">
                     <button onClick={() => handleCopySavedPassword(entry)}>Copy</button>
-                    <button onClick={() => handleDeletePassword(entry.id)}>Delete</button>
+                    <button onClick={() => handleDeletePassword(entry.id)} className="button-secondary">
+                      Delete
+                    </button>
                   </div>
                 </li>
               ))}
@@ -429,9 +446,9 @@ const PasswordGenerator: React.FC = () => {
           </section>
         )}
 
-        {hasVaultAccess && savedPasswords.length === 0 && <p>No saved passwords in this local vault yet.</p>}
+        {hasVaultAccess && savedPasswords.length === 0 && <p className="empty-state">No saved passwords in this local vault yet.</p>}
 
-        {statusMessage && <p>{statusMessage}</p>}
+        {statusMessage && <p className="status-message">{statusMessage}</p>}
       </main>
     </div>
   );
