@@ -2,37 +2,38 @@
   "name": "securepass",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
-  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "browserslist": "defaults, not ie <= 11",
+  "dependencies": {
+    "@headlessui/react": "^2.2.6",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/postcss": "^4.2.2",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.11",
+    "next": "16.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.8.3",
+    "use-debounce": "^10.0.5"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "^9.32.0",
+    "eslint-config-next": "16.1.6",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "sharp": "0.34.3"
+  },
+  "overrides": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3"
   }
 }
