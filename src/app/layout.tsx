@@ -1,18 +1,69 @@
-import { ReactNode } from 'react';
-import './globals.css';
+import type { Metadata } from 'next'
+import { Fraunces, Manrope } from 'next/font/google'
 
-interface RootLayoutProps {
-  children: ReactNode;
+import './globals.css'
+
+const themeInitScript = `
+(() => {
+  const storageKey = 'securepass-theme-mode';
+  const validModes = ['light', 'dark', 'system'];
+  let mode = 'system';
+
+  try {
+    const savedMode = window.localStorage.getItem(storageKey);
+    if (savedMode && validModes.includes(savedMode)) {
+      mode = savedMode;
+    }
+  } catch {}
+
+  const resolvedMode =
+    mode === 'system'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+      : mode;
+
+  document.documentElement.dataset.theme = resolvedMode;
+  document.documentElement.dataset.themeMode = mode;
+})();
+`
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-manrope',
+  display: 'swap',
+})
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-fraunces',
+  display: 'swap',
+})
+
+export const metadata: Metadata = {
+  title: {
+    default: 'SecurePass',
+    template: '%s | SecurePass',
+  },
+  description:
+    'A local-first password generator and encrypted vault rebuilt with a cleaner product structure and a stronger frontend presentation.',
 }
 
-const RootLayout = ({ children }: RootLayoutProps) => {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${manrope.variable} ${fraunces.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body>{children}</body>
     </html>
-  );
-};
-
-export default RootLayout;
+  )
+}
