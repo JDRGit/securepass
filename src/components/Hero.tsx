@@ -22,7 +22,7 @@ export function Hero() {
       <Container>
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(24rem,30rem)] lg:items-center">
           <div>
-            <h1 className="theme-text-primary max-w-4xl font-display text-5xl leading-none tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="theme-text-primary max-w-4xl font-sans text-5xl font-semibold leading-none tracking-[-0.045em] sm:text-6xl lg:text-7xl">
               A cleaner SecurePass built for shipping and showing your work.
             </h1>
             <p className="theme-text-muted mt-6 max-w-2xl text-lg leading-8 sm:text-xl">
