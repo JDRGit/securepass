@@ -4,7 +4,7 @@
 
 @theme {
   --font-sans: var(--font-manrope);
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-manrope);
 
   --color-cream-50: #fbf6ef;
   --color-cream-100: #f5ead7;

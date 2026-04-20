@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Fraunces, Manrope } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 
 import './globals.css'
 
@@ -34,11 +34,6 @@ const manrope = Manrope({
   display: 'swap',
 })
 
-const fraunces = Fraunces({
-  subsets: ['latin'],
-  variable: '--font-fraunces',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: {
@@ -57,7 +52,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${manrope.variable} ${fraunces.variable}`}
+      className={manrope.variable}
       suppressHydrationWarning
     >
       <head>
